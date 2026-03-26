@@ -24,6 +24,8 @@ public:
     explicit BPlusTree(int order = 4);
     BPlusTree(const BPlusTree&) = delete;
     BPlusTree& operator=(const BPlusTree&) = delete;
+    BPlusTree(BPlusTree&& other) noexcept;
+    BPlusTree& operator=(BPlusTree&& other) noexcept;
     ~BPlusTree();
 
     void insert(const Record& record);

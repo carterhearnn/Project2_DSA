@@ -119,12 +119,12 @@ bool BPlusTree::insertRecursive(Node* node, const Record& record, int& movedKey,
     }
 
     int changedChildKey= 0;
-    Node* newRightChild = nullptr;
-    bool splitChild = insertRecursive(node->children[iOfChild], record, changedChildKey, newRightChild);
+    Node* childNewRight = nullptr;
+    bool splitChild = insertRecursive(node->children[iOfChild], record, changedChildKey, childNewRight);
     if (!splitChild){
         return false;
     }
-    insertIntoInternal(node, changedChildKey, newRightChild);
+    insertIntoInternal(node, changedChildKey, childNewRight);
     if(static_cast<int>(node->keys.size()) <= maxKeys()){
         return false;
     }
@@ -139,6 +139,21 @@ BPlusTree::BPlusTree(int order) : root(nullptr), order(order) {
     if (order < 3) {
         throw std::invalid_argument("B+ tree order must be at least 3");
     }
+}
+
+BPlusTree::BPlusTree(BPlusTree&& other) noexcept : root(other.root), order(other.order) {
+    other.root = nullptr;
+}
+
+BPlusTree& BPlusTree::operator=(BPlusTree&& other) noexcept {
+    if (this == &other) {
+        return *this;
+    }
+    clear(root);
+    root = other.root;
+    order = other.order;
+    other.root = nullptr;
+    return *this;
 }
 
 BPlusTree::~BPlusTree() {
@@ -184,4 +199,31 @@ const Record* BPlusTree::search(int date) const {
     }
 
     return nullptr;
+}
+
+bool BPlusTree::contains(int date) const {
+    return search(date) != nullptr;
+}
+
+std::vector<Record> BPlusTree::rangeSearch(int startDate, int endDate) const {
+    std::vector<Record> results;
+    if (root == nullptr || startDate > endDate) {
+        return results;
+    }
+
+    Node* current = findLeaf(startDate);
+    while (current != nullptr) {
+        for (const Record& record : current->records) {
+            if (record.date < startDate) {
+                continue;
+            }
+            if (record.date > endDate) {
+                return results;
+            }
+            results.push_back(record);
+        }
+        current = current->next;
+    }
+
+    return results;
 }
