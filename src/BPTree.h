@@ -31,9 +31,6 @@ public:
     const Record* search(int date) const;
     bool contains(int date) const;
     std::vector<Record> rangeSearch(int startDate, int endDate) const;
-
-    void printLeaves() const;
-    void printTree() const;
 };
 
 #endif

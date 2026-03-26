@@ -163,3 +163,25 @@ void BPlusTree::insert(const Record& record) {
         root = newRoot;
     }
 }
+
+const Record* BPlusTree::search(int date) const {
+    Node* leaf = findLeaf(date);
+    if (leaf == nullptr) {
+        return nullptr;
+    }
+
+    auto it = std::lower_bound(
+        leaf->records.begin(),
+        leaf->records.end(),
+        date,
+        [](const Record& r, int date) {
+            return r.date < date;
+        }
+    );
+
+    if (it != leaf->records.end() && it->date == date) {
+        return &*it;
+    }
+
+    return nullptr;
+}
