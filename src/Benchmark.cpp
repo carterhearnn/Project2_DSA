@@ -61,8 +61,8 @@ void Benchmark::runReport(const std::string& ticker, const std::vector<Record>& 
         double searchMid = timeSearch(tree, midDate);
         double searchLast = timeSearch(tree, lastDate);
 
-        std::cout << " Search (first):    " << searchFirst << " ms" << std::endl; 
-        std::cout << " Search (middle):    " << searchMid << " ms" << std::endl; 
+        std::cout << " Search (first):   " << searchFirst << " ms" << std::endl; 
+        std::cout << " Search (middle):  " << searchMid << " ms" << std::endl; 
         std::cout << " Search (last):    " << searchLast << " ms" << std::endl; 
     }
 
@@ -77,18 +77,18 @@ void Benchmark::runReport(const std::string& ticker, const std::vector<Record>& 
         double rangeMedium = timeRangeQuery(tree, startDate, halfDate);
         double rangeLarge = timeRangeQuery(tree, startDate, endDate);
 
-        std::cout << " Range (25%):    " << rangeSmall << " ms" << std::endl;
-        std::cout << " Range (50%):    " << rangeMedium << " ms" << std::endl;
-        std::cout << " Range (100%):    " << rangeLarge << " ms" << std::endl;
+        std::cout << " Range (25%):      " << rangeSmall << " ms" << std::endl;
+        std::cout << " Range (50%):      " << rangeMedium << " ms" << std::endl;
+        std::cout << " Range (100%):     " << rangeLarge << " ms" << std::endl;
 
     }
 
     // Stats function for full range
     std::vector<Record> allResults = tree.rangeQuery(records.front().date, records.back().date);
-    std::cout << " Moving Average:    " << Stats::movingAverage(allResults) << std::endl;
-    std::cout << " Volatility:    " << Stats::volatility(allResults) << std::endl;
-    std::cout << " Price Change:    $" << Stats::priceChange(allResults) << std::endl;
-    std::cout << " Percent Change:    " << Stats::percentChange(allResults) << "%" << std::endl;
+    std::cout << " Moving Average:   " << Stats::movingAverage(allResults) << std::endl;
+    std::cout << " Volatility:       " << Stats::volatility(allResults) << std::endl;
+    std::cout << " Price Change:     $" << Stats::priceChange(allResults) << std::endl;
+    std::cout << " Percent Change:   " << Stats::percentChange(allResults) << "%" << std::endl;
     std::cout << "==============================" << std::endl;
 
 }
