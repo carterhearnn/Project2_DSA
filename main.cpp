@@ -2,6 +2,7 @@
 #include "src/CSVUtils.h"
 #include "src/RBTree.h"
 #include "src/Record.h"
+#include "src/Stats.h"
 
 #include <algorithm>
 #include <chrono>
@@ -59,6 +60,20 @@ int main(int argc, char *argv[])
         return (timings[(n / 2) - 1] + timings[n / 2]) / 2;
     };
 
+    auto printMetrics = [](const std::vector<Record> &results)
+    {
+        const double movingAverage = Stats::movingAverage(results);
+        const double volatility = Stats::volatility(results);
+        const double priceChange = Stats::priceChange(results);
+        const double percentChange = Stats::percentChange(results);
+
+        std::cout
+            << movingAverage << ","
+            << volatility << ","
+            << priceChange << ","
+            << percentChange << std::endl;
+    };
+
     auto printResults = [](const std::vector<Record> &results)
     {
         std::cout << "date,open,high,low,close,volume" << std::endl;
@@ -98,6 +113,7 @@ int main(int argc, char *argv[])
         }
 
         std::cout << medianNs(timings) << std::endl;
+        printMetrics(results);
         printResults(results);
     }
     else if (dsType == "BP")
@@ -124,6 +140,7 @@ int main(int argc, char *argv[])
         }
 
         std::cout << medianNs(timings) << std::endl;
+        printMetrics(results);
         printResults(results);
     }
     else
