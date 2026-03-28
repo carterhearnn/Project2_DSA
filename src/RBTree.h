@@ -2,41 +2,42 @@
 #define RBTREE_H
 
 #include "RBNode.h"
-#include <vector> 
+#include "Tree.h"
+#include <vector>
 
-class RBTree {
+class RBTree : public Tree
+{
 private:
-    RBNode* root;
+    RBNode *root;
     int nodeCount;
 
     // Rotation Helper Functions
-    void rotateLeft(RBNode* node);
-    void rotateRight(RBNode* node);
+    void rotateLeft(RBNode *node);
+    void rotateRight(RBNode *node);
 
     // Fixing issues after insertion
-    void insertFixup(RBNode* node); 
+    void insertFixup(RBNode *node);
 
     // Helper for range query
-    void rangeQueryHelper(RBNode* node, int startDate, int endDate, std::vector<Record>& results) const;
+    void rangeQueryHelper(RBNode *node, int startDate, int endDate, std::vector<Record> &results) const;
 
     // cleanup
-    void destroyTree(RBNode* node);
+    void destroyTree(RBNode *node);
 
 public:
     RBTree();
-    ~RBTree();
+    ~RBTree() override;
 
     // Insert & Search Functions
-    void insert(const Record& record);
-    RBNode* search(int date) const;
+    void insert(const Record &record) override;
+    RBNode *search(int date) const;
 
     // Range Query: returns records between Start/End Date
-    std::vector<Record> rangeQuery(int startDate, int endDate) const;
+    std::vector<Record> rangeQuery(int startDate, int endDate) const override;
 
     // other functions
     int size() const;
     bool isEmpty() const;
-
 };
 
 #endif
