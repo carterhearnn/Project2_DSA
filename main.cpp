@@ -3,6 +3,7 @@
 #include "src/RBTree.h"
 #include "src/Record.h"
 
+#include <algorithm>
 #include <chrono>
 #include <iostream>
 #include <string>
@@ -40,6 +41,23 @@ int main(int argc, char *argv[])
     }
 
     const std::string filepath = "data/world_stock_prices.csv";
+    constexpr int kTimingRuns = 1000;
+
+    auto medianNs = [](std::vector<long long> timings) -> long long
+    {
+        if (timings.empty())
+        {
+            return 0;
+        }
+
+        std::sort(timings.begin(), timings.end());
+        const std::size_t n = timings.size();
+        if (n % 2 == 1)
+        {
+            return timings[n / 2];
+        }
+        return (timings[(n / 2) - 1] + timings[n / 2]) / 2;
+    };
 
     auto printResults = [](const std::vector<Record> &results)
     {
@@ -61,12 +79,25 @@ int main(int argc, char *argv[])
         RBTree tree;
         tree.load(filepath, ticker);
 
-        auto queryStart = std::chrono::high_resolution_clock::now();
-        const std::vector<Record> results = tree.rangeQuery(startDate, endDate);
-        auto queryEnd = std::chrono::high_resolution_clock::now();
-        auto queryNs = std::chrono::duration_cast<std::chrono::nanoseconds>(queryEnd - queryStart).count();
+        std::vector<long long> timings;
+        timings.reserve(kTimingRuns);
 
-        std::cout << queryNs << std::endl;
+        std::vector<Record> results;
+        for (int i = 0; i < kTimingRuns; i++)
+        {
+            auto queryStart = std::chrono::high_resolution_clock::now();
+            std::vector<Record> current = tree.rangeQuery(startDate, endDate);
+            auto queryEnd = std::chrono::high_resolution_clock::now();
+            auto queryNs = std::chrono::duration_cast<std::chrono::nanoseconds>(queryEnd - queryStart).count();
+            timings.push_back(queryNs);
+
+            if (i == kTimingRuns - 1)
+            {
+                results = std::move(current);
+            }
+        }
+
+        std::cout << medianNs(timings) << std::endl;
         printResults(results);
     }
     else if (dsType == "BP")
@@ -74,12 +105,25 @@ int main(int argc, char *argv[])
         BPlusTree tree;
         tree.load(filepath, ticker);
 
-        auto queryStart = std::chrono::high_resolution_clock::now();
-        const std::vector<Record> results = tree.rangeQuery(startDate, endDate);
-        auto queryEnd = std::chrono::high_resolution_clock::now();
-        auto queryNs = std::chrono::duration_cast<std::chrono::nanoseconds>(queryEnd - queryStart).count();
+        std::vector<long long> timings;
+        timings.reserve(kTimingRuns);
 
-        std::cout << queryNs << std::endl;
+        std::vector<Record> results;
+        for (int i = 0; i < kTimingRuns; i++)
+        {
+            auto queryStart = std::chrono::high_resolution_clock::now();
+            std::vector<Record> current = tree.rangeQuery(startDate, endDate);
+            auto queryEnd = std::chrono::high_resolution_clock::now();
+            auto queryNs = std::chrono::duration_cast<std::chrono::nanoseconds>(queryEnd - queryStart).count();
+            timings.push_back(queryNs);
+
+            if (i == kTimingRuns - 1)
+            {
+                results = std::move(current);
+            }
+        }
+
+        std::cout << medianNs(timings) << std::endl;
         printResults(results);
     }
     else
