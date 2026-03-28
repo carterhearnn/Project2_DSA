@@ -10,6 +10,12 @@ type SearchParams = {
 
 type QueryResult = {
   runtimeNs: string;
+  metrics: {
+    movingAverage: number;
+    volatility: number;
+    priceChange: number;
+    percentChange: number;
+  };
   headers: string[];
   rows: string[][];
 };
@@ -27,15 +33,28 @@ function parseOutput(stdout: string): QueryResult {
     .map((line) => line.trim())
     .filter((line) => line.length > 0);
 
-  if (lines.length < 2) {
+  if (lines.length < 3) {
     throw new Error("Unexpected output from out binary.");
   }
 
   const runtimeNs = lines[0];
-  const headers = lines[1].split(",");
-  const rows = lines.slice(2).map((line) => line.split(","));
+  const metricValues = lines[1].split(",").map((value) => Number(value));
 
-  return { runtimeNs, headers, rows };
+  if (metricValues.length !== 4 || metricValues.some((value) => !Number.isFinite(value))) {
+    throw new Error("Unexpected metrics line from out binary.");
+  }
+
+  const headers = lines[2].split(",");
+  const rows = lines.slice(3).map((line) => line.split(","));
+
+  const metrics = {
+    movingAverage: metricValues[0],
+    volatility: metricValues[1],
+    priceChange: metricValues[2],
+    percentChange: metricValues[3],
+  };
+
+  return { runtimeNs, metrics, headers, rows };
 }
 
 function runQuery(
@@ -203,6 +222,81 @@ export default async function Home({
       {displayResult ? (
         <section>
           <StockChartClient data={chartData} />
+        </section>
+      ) : null}
+
+      {displayResult ? (
+        <section>
+          <table
+            style={{
+              border: "2px solid black",
+              borderCollapse: "separate",
+              borderSpacing: "8px",
+            }}
+          >
+            <tbody>
+              <tr>
+                <th style={{ fontSize: "16px", border: "1px solid black", padding: "12px" }}>
+                  Moving Average
+                </th>
+                <td
+                  style={{
+                    fontSize: "24px",
+                    border: "1px solid black",
+                    padding: "12px",
+                    fontFamily: "monospace",
+                  }}
+                >
+                  {displayResult.metrics.movingAverage.toFixed(6)}
+                </td>
+              </tr>
+              <tr>
+                <th style={{ fontSize: "16px", border: "1px solid black", padding: "12px" }}>
+                  Volatility
+                </th>
+                <td
+                  style={{
+                    fontSize: "24px",
+                    border: "1px solid black",
+                    padding: "12px",
+                    fontFamily: "monospace",
+                  }}
+                >
+                  {displayResult.metrics.volatility.toFixed(6)}
+                </td>
+              </tr>
+              <tr>
+                <th style={{ fontSize: "16px", border: "1px solid black", padding: "12px" }}>
+                  Price Change
+                </th>
+                <td
+                  style={{
+                    fontSize: "24px",
+                    border: "1px solid black",
+                    padding: "12px",
+                    fontFamily: "monospace",
+                  }}
+                >
+                  {displayResult.metrics.priceChange.toFixed(6)}
+                </td>
+              </tr>
+              <tr>
+                <th style={{ fontSize: "16px", border: "1px solid black", padding: "12px" }}>
+                  Percent Change (%)
+                </th>
+                <td
+                  style={{
+                    fontSize: "24px",
+                    border: "1px solid black",
+                    padding: "12px",
+                    fontFamily: "monospace",
+                  }}
+                >
+                  {displayResult.metrics.percentChange.toFixed(6)}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </section>
       ) : null}
     </main>
