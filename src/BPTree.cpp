@@ -35,6 +35,10 @@ BPlusTree::Node *BPlusTree::findLeaf(int key) const
         {
             i++;
         }
+        if (i >= current->children.size())
+        {
+            return nullptr;
+        }
         current = current->children[i];
     }
     return current;
@@ -102,12 +106,14 @@ void BPlusTree::insertIntoInternal(Node *internal, int key, Node *rightChild)
 std::pair<int, BPlusTree::Node *> BPlusTree::splitInternal(Node *internal)
 {
     Node *rightI = new Node(false);
-    const int splitIndex = static_cast<int>(internal->keys.size() + 1) / 2;
-    rightI->keys.assign(internal->keys.begin() + splitIndex, internal->keys.end());
+    const int splitIndex = static_cast<int>(internal->keys.size()) / 2;
+    const int movedKey = internal->keys[splitIndex];
+
+    rightI->keys.assign(internal->keys.begin() + splitIndex + 1, internal->keys.end());
     internal->keys.erase(internal->keys.begin() + splitIndex, internal->keys.end());
-    rightI->children.assign(internal->children.begin() + splitIndex, internal->children.end());
-    internal->children.erase(internal->children.begin() + splitIndex, internal->children.end());
-    const int movedKey = rightI->keys.front();
+
+    rightI->children.assign(internal->children.begin() + splitIndex + 1, internal->children.end());
+    internal->children.erase(internal->children.begin() + splitIndex + 1, internal->children.end());
     return {movedKey, rightI};
 }
 
