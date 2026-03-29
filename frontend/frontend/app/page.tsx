@@ -14,6 +14,71 @@ type QueryResult = {
   rows: string[][];
 };
 
+const AVAILABLE_TICKERS = [
+  "AAPL",
+  "ABNB",
+  "ADBE",
+  "ADDYY",
+  "AEO",
+  "AMD",
+  "AMZN",
+  "AXP",
+  "BAMXF",
+  "CL",
+  "CMG",
+  "COIN",
+  "COST",
+  "CRM",
+  "CROX",
+  "CSCO",
+  "DAL",
+  "DIS",
+  "FDX",
+  "FL",
+  "GOOGL",
+  "HD",
+  "HLT",
+  "HMC",
+  "HSY",
+  "JNJ",
+  "JPM",
+  "JWN",
+  "KO",
+  "LOGI",
+  "LUV",
+  "LVMUY",
+  "MA",
+  "MAR",
+  "MCD",
+  "MMM",
+  "MSFT",
+  "NFLX",
+  "NKE",
+  "NTDOY",
+  "NVDA",
+  "PG",
+  "PHG",
+  "PINS",
+  "PMMAF",
+  "POAHY",
+  "PTON",
+  "RBLX",
+  "SBUX",
+  "SHOP",
+  "SPOT",
+  "SQ",
+  "TGT",
+  "TM",
+  "TSLA",
+  "TWTR",
+  "UBER",
+  "UBSFY",
+  "UL",
+  "V",
+  "ZI",
+  "ZM",
+];
+
 function formatDateForInput(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -108,9 +173,11 @@ export default async function Home({
                 </td>
                 <td style={{ border: "1px solid black", padding: "6px" }}>
                   <select id="ticker" name="ticker" defaultValue={ticker}>
-                    <option value="AAPL">AAPL</option>
-                    <option value="MSFT">MSFT</option>
-                    <option value="TSLA">TSLA</option>
+                    {AVAILABLE_TICKERS.map((symbol) => (
+                      <option key={symbol} value={symbol}>
+                        {symbol}
+                      </option>
+                    ))}
                   </select>
                 </td>
               </tr>
